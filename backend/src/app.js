@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const mongoSanitize = require('express-mongo-sanitize');
+
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
@@ -39,7 +39,24 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // NoSQL injection prevention
-app.use(mongoSanitize());
+// express-mongo-sanitize is incompatible with Express 5 (req.query is read-only).
+// Custom sanitizer strips keys starting with '$' or containing '.' from
+// req.body and req.params (both are writable in Express 5).
+const sanitizeValue = (obj) => {
+  if (!obj || typeof obj !== 'object') return;
+  Object.keys(obj).forEach((key) => {
+    if (key.startsWith('$') || key.includes('.')) {
+      delete obj[key];
+    } else if (obj[key] && typeof obj[key] === 'object') {
+      sanitizeValue(obj[key]);
+    }
+  });
+};
+app.use((req, _res, next) => {
+  if (req.body) sanitizeValue(req.body);
+  if (req.params) sanitizeValue(req.params);
+  next();
+});
 
 // On Vercel, /var/task/ is read-only — serve uploads from /tmp instead
 const uploadDir = process.env.VERCEL
