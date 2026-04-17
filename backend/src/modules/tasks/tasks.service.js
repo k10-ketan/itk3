@@ -104,7 +104,13 @@ const updateTask = async (id, updateData, files, requesterId, requesterRole) => 
 
   const allowed = ['title', 'description', 'status', 'priority', 'dueDate', 'assignedTo'];
   for (const key of allowed) {
-    if (updateData[key] !== undefined) task[key] = updateData[key];
+    if (updateData[key] !== undefined) {
+      if ((key === 'assignedTo' || key === 'dueDate') && updateData[key] === '') {
+        task[key] = null;
+      } else {
+        task[key] = updateData[key];
+      }
+    }
   }
 
   if (files && files.length > 0) {
