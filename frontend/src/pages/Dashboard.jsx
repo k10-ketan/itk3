@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -79,10 +79,22 @@ const Dashboard = () => {
     dispatch(fetchTasks({ limit: 100 }));
   }, [dispatch]);
 
-  const total = tasks.length;
-  const todo = tasks.filter((t) => t.status === 'TODO').length;
-  const inProgress = tasks.filter((t) => t.status === 'IN_PROGRESS').length;
-  const done = tasks.filter((t) => t.status === 'DONE').length;
+  const [priorityFilter, setPriorityFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('Everything');
+
+  const filteredTasks = tasks.filter((t) => {
+    if (priorityFilter !== 'All' && t.priority !== priorityFilter.toUpperCase()) return false;
+    if (statusFilter !== 'Everything') {
+      const mappedStatus = statusFilter === 'Todo' ? 'TODO' : statusFilter === 'In Progress' ? 'IN_PROGRESS' : 'DONE';
+      if (t.status !== mappedStatus) return false;
+    }
+    return true;
+  });
+
+  const total = filteredTasks.length;
+  const todo = filteredTasks.filter((t) => t.status === 'TODO').length;
+  const inProgress = filteredTasks.filter((t) => t.status === 'IN_PROGRESS').length;
+  const done = filteredTasks.filter((t) => t.status === 'DONE').length;
 
   const chartData = [
     { name: 'Todo',        count: todo,       fill: '#727783' },
@@ -90,7 +102,7 @@ const Dashboard = () => {
     { name: 'Done',        count: done,        fill: '#22c55e' },
   ];
 
-  const recent = [...tasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+  const recent = [...filteredTasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
 
   const username = user?.email ? user.email.split('@')[0] : '';
 
@@ -153,18 +165,29 @@ const Dashboard = () => {
               <div>
                 <label className="label">Priority</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {['All', 'High', 'Medium', 'Low'].map((p, i) => (
-                    <button key={p} className={`filter-pill ${i === 0 ? 'active' : ''}`}>{p}</button>
+                  {['All', 'High', 'Medium', 'Low'].map((p) => (
+                    <button 
+                      key={p} 
+                      className={`filter-pill ${priorityFilter === p ? 'active' : ''}`}
+                      onClick={() => setPriorityFilter(p)}
+                    >
+                      {p}
+                    </button>
                   ))}
                 </div>
               </div>
               <div>
                 <label className="label">Status</label>
-                <select className="input" style={{ fontSize: '0.875rem' }}>
-                  <option>Everything</option>
-                  <option>Todo</option>
-                  <option>In Progress</option>
-                  <option>Done</option>
+                <select 
+                  className="input" 
+                  style={{ fontSize: '0.875rem' }}
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="Everything">Everything</option>
+                  <option value="Todo">Todo</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Done">Done</option>
                 </select>
               </div>
             </div>
