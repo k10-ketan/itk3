@@ -8,12 +8,6 @@ RUN npm ci
 
 COPY . .
 
-# Pass build-time env vars
-ARG VITE_API_URL=/api
-ARG VITE_SOCKET_URL=http://localhost:5000
-ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
-
 RUN npm run build
 
 # Stage 2: Serve with nginx

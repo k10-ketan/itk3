@@ -233,6 +233,47 @@ Full interactive documentation: **http://localhost:5000/api/docs**
 
 ---
 
+## Vercel Deployment
+
+### 1. Push to GitHub
+
+```bash
+git init && git add . && git commit -m "Initial commit"
+git remote add origin <your-repo-url>
+git push -u origin main
+```
+
+### 2. Import project on Vercel
+
+Vercel will detect the `vercel.json` and deploy **frontend** and **backend** as separate experimental services.
+
+### 3. Set Environment Variables in Vercel Dashboard
+
+For the **backend** service (`backend` root):
+
+| Variable | Value |
+|---|---|
+| `NODE_ENV` | `production` |
+| `MONGODB_URI` | `mongodb+srv://user:pass@cluster.mongodb.net/taskdb` |
+| `JWT_ACCESS_SECRET` | _(32+ char secret)_ |
+| `JWT_REFRESH_SECRET` | _(32+ char secret)_ |
+| `JWT_ACCESS_EXPIRES` | `15m` |
+| `JWT_REFRESH_EXPIRES` | `7d` |
+| `UPLOAD_DIR` | `uploads` |
+| `MAX_FILE_SIZE` | `5242880` |
+| `MAX_FILES` | `3` |
+| `CLIENT_URL` | `https://your-app.vercel.app` |
+
+> **MongoDB**: Use [MongoDB Atlas](https://cloud.mongodb.com) free tier. Local uploads won't persist on Vercel serverless — for production file storage integrate AWS S3.
+
+### Known Vercel Limitations
+
+- **Socket.io**: Falls back to HTTP long-polling (no TCP WebSocket on serverless). Real-time updates still work.
+- **File uploads**: Serverless functions are stateless — uploaded files will disappear between invocations. Use S3 for production.
+- **Cold starts**: First request may be slower (~1–2s).
+
+---
+
 ## Design Decisions
 
 ### Why MongoDB?
