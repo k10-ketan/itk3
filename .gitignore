@@ -52,3 +52,6 @@ frontend/coverage/
 # Misc
 *.tgz
 *.tar.gz
+
+.vercel
+.env*.local
