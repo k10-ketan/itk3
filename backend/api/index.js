@@ -3,22 +3,6 @@ require('dotenv').config();
 
 const connectDB = require('../src/config/db');
 
-// Vercel's Rust bundler may wrap CJS exports. Resolve the actual Express app:
-// - If bundler sets .default to a function → use .default
-// - If _appModule itself is the Express function → use it directly
-// - Last resort: try .default anyway
-const _appModule = require('../src/app');
-let app;
-if (typeof _appModule === 'function') {
-  app = _appModule;
-} else if (typeof _appModule.default === 'function') {
-  app = _appModule.default;
-} else {
-  // Shouldn't happen — log for debugging and fall back
-  console.error('[Vercel] Unexpected app module shape:', typeof _appModule, Object.keys(_appModule || {}));
-  app = _appModule.default || _appModule;
-}
-
 // Stub Socket.io — no persistent WebSocket in Vercel serverless
 const ioStub = {
   emit: () => {},
@@ -27,30 +11,47 @@ const ioStub = {
   of: () => ({ emit: () => {} }),
 };
 
-if (typeof app.set === 'function') {
-  app.set('io', ioStub);
-}
-
-// Track DB connection across warm invocations (Mongoose caches internally too)
+// Track DB connection across warm invocations
 let dbConnected = false;
+
+// Raw Node.js error response — res.status() is Express-only, not available here
+const sendError = (res, code, message) => {
+  res.writeHead(code, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ success: false, message }));
+};
 
 const handler = async (req, res) => {
   try {
+    // Connect DB once per cold start
     if (!dbConnected) {
       await connectDB();
       dbConnected = true;
     }
 
-    // Final safety check
-    if (typeof app !== 'function') {
-      console.error('[Vercel] app is not callable. Type:', typeof app);
-      return res.status(500).json({ success: false, message: 'Server misconfigured.' });
+    // Lazy-load the Express app INSIDE the handler.
+    // Loading at the top level causes Vercel's Rust bundler to capture
+    // the initial empty module.exports ({}) before app.js reassigns it.
+    const _appModule = require('../src/app');
+
+    let app;
+    if (typeof _appModule === 'function') {
+      app = _appModule;
+    } else if (_appModule && typeof _appModule.default === 'function') {
+      app = _appModule.default;
+    } else {
+      console.error('[api/index] Module shape:', typeof _appModule, JSON.stringify(Object.keys(_appModule || {})));
+      return sendError(res, 500, 'Express app failed to load.');
+    }
+
+    // Attach io stub if not already attached
+    if (typeof app.get === 'function' && !app.get('io')) {
+      app.set('io', ioStub);
     }
 
     return app(req, res);
   } catch (err) {
-    console.error('[Vercel] Handler error:', err.message);
-    return res.status(500).json({ success: false, message: err.message });
+    console.error('[api/index] Unhandled error:', err.message);
+    return sendError(res, 500, err.message || 'Internal Server Error');
   }
 };
 
