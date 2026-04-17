@@ -10,7 +10,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
       MONGO_INITDB_DATABASE: taskdb
     ports:
-      - '27017:27017'
+      - '27018:27017'
     volumes:
       - mongo_data:/data/db
     healthcheck:
@@ -27,7 +27,7 @@ services:
     container_name: taskapp_backend
     restart: unless-stopped
     ports:
-      - '5000:5000'
+      - '5001:5000'
     depends_on:
       mongodb:
         condition: service_healthy

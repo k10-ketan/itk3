@@ -80,127 +80,151 @@ const EditTask = () => {
     );
   }
 
-  const fieldStyle = { marginBottom: '1.25rem' };
+  const selectStyle = {
+    appearance: 'none',
+    WebkitAppearance: 'none',
+  };
 
   return (
-    <div className="page-enter" style={{ maxWidth: '700px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-        <button
-          onClick={() => navigate(`/tasks/${id}`)}
-          style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.9375rem' }}
-        >
-          ←
-        </button>
-        <h1 style={{ margin: 0, fontSize: '1.625rem', fontWeight: 800, color: '#f1f5f9' }}>Edit Task</h1>
+    <div className="page-enter" style={{ padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
+
+      {/* ── Header ───────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>
+            <button onClick={() => navigate('/tasks')} style={{ background: 'none', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', padding: 0 }}>Tasks</button>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chevron_right</span>
+            <button onClick={() => navigate(`/tasks/${id}`)} style={{ background: 'none', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', padding: 0 }}>{task?.title ? (task.title.length > 20 ? task.title.slice(0, 20) + '...' : task.title) : 'Task'}</button>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chevron_right</span>
+            <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Edit</span>
+          </nav>
+          <h1 style={{ fontFamily: 'var(--font-headline)', margin: '0 0 0.25rem', fontSize: '1.875rem', fontWeight: 800, color: 'var(--on-surface)', letterSpacing: '-0.01em' }}>
+            Edit Task
+          </h1>
+          <p style={{ margin: 0, color: 'var(--on-surface-variant)' }}>
+            Update the details and properties for this work item.
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button type="button" className="btn btn-ghost" onClick={() => navigate(`/tasks/${id}`)}>
+            Cancel
+          </button>
+          <button type="submit" form="edit-task-form" className="btn btn-primary" disabled={loading} id="edit-task-submit">
+            {loading ? <><span className="spinner spinner-sm" /> Saving...</> : 'Save Changes'}
+          </button>
+        </div>
       </div>
 
-      <div className="card">
-        <form onSubmit={handleSubmit} noValidate>
-          <div style={fieldStyle}>
-            <label className="label" htmlFor="edit-title">Title <span style={{ color: '#ef4444' }}>*</span></label>
-            <input
-              id="edit-title"
-              type="text"
-              className={`input ${errors.title ? 'error' : ''}`}
-              maxLength={100}
-              value={form.title}
-              onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-            />
-            {errors.title && <span className="error-text">⚠ {errors.title}</span>}
+      {/* ── Content Grid ─────────────────────────── */}
+      <form id="edit-task-form" onSubmit={handleSubmit} noValidate>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr minmax(260px, 320px)', gap: '1.5rem', alignItems: 'start' }}>
+
+          {/* Main column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+            <div className="card">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div>
+                  <label className="label" htmlFor="edit-title">Task Title</label>
+                  <input
+                    id="edit-title" type="text"
+                    className={`input ${errors.title ? 'error' : ''}`}
+                    maxLength={100}
+                    value={form.title}
+                    onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
+                  />
+                  {errors.title && <span className="error-text">⚠ {errors.title}</span>}
+                </div>
+
+                <div>
+                  <label className="label" htmlFor="edit-desc">Description</label>
+                  <textarea
+                    id="edit-desc"
+                    className={`input ${errors.description ? 'error' : ''}`}
+                    rows={6} maxLength={1000}
+                    value={form.description}
+                    onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                    style={{ resize: 'vertical', minHeight: '140px' }}
+                  />
+                  <div style={{ textAlign: 'right', fontSize: '0.75rem', color: 'var(--outline)', marginTop: '0.25rem' }}>{form.description.length}/1000</div>
+                  {errors.description && <span className="error-text">⚠ {errors.description}</span>}
+                </div>
+              </div>
+            </div>
+
+            {/* Attachments */}
+            <div className="card">
+              <h3 style={{ fontFamily: 'var(--font-headline)', margin: '0 0 1rem', fontSize: '1rem', fontWeight: 700, color: 'var(--on-surface)' }}>
+                Add More Attachments
+              </h3>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--on-surface-variant)', marginBottom: '1rem' }}>
+                {existingDocCount} existing document(s). You can upload up to {3 - existingDocCount} more.
+              </div>
+              <DocumentUpload files={files} setFiles={setFiles} existingCount={existingDocCount} />
+            </div>
           </div>
 
-          <div style={fieldStyle}>
-            <label className="label" htmlFor="edit-desc">Description</label>
-            <textarea
-              id="edit-desc"
-              className={`input ${errors.description ? 'error' : ''}`}
-              rows={4}
-              maxLength={1000}
-              value={form.description}
-              onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-              style={{ resize: 'vertical', minHeight: '100px' }}
-            />
-            <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
-              {form.description.length}/1000
-            </div>
-            {errors.description && <span className="error-text">⚠ {errors.description}</span>}
-          </div>
+          {/* Sidebar fields */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
-            <div>
-              <label className="label" htmlFor="edit-status">Status</label>
-              <select id="edit-status" className="input" value={form.status} onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}>
-                <option value="TODO">Todo</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="DONE">Done</option>
-              </select>
-            </div>
-            <div>
-              <label className="label" htmlFor="edit-priority">Priority</label>
-              <select id="edit-priority" className="input" value={form.priority} onChange={(e) => setForm((p) => ({ ...p, priority: e.target.value }))}>
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-              </select>
-            </div>
-          </div>
+            <div className="card">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div>
+                  <label className="label" htmlFor="edit-status">Status</label>
+                  <div style={{ position: 'relative' }}>
+                    <select id="edit-status" className="input" value={form.status} onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))} style={selectStyle}>
+                      <option value="TODO">Todo</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="DONE">Done</option>
+                    </select>
+                    <span className="material-symbols-outlined" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--outline)', fontSize: '1.125rem', pointerEvents: 'none' }}>expand_more</span>
+                  </div>
+                </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? '1fr 1fr' : '1fr', gap: '1rem', marginBottom: '1.25rem' }}>
-            <div>
-              <label className="label" htmlFor="edit-due">Due Date</label>
-              <input
-                id="edit-due"
-                type="date"
-                className="input"
-                value={form.dueDate}
-                onChange={(e) => setForm((p) => ({ ...p, dueDate: e.target.value }))}
-                style={{ colorScheme: 'dark' }}
-              />
+                <div>
+                  <label className="label" htmlFor="edit-priority">Priority</label>
+                  <div style={{ position: 'relative' }}>
+                    <select id="edit-priority" className="input" value={form.priority} onChange={(e) => setForm((p) => ({ ...p, priority: e.target.value }))} style={selectStyle}>
+                      <option value="LOW">Low</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HIGH">High</option>
+                    </select>
+                    <span className="material-symbols-outlined" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--outline)', fontSize: '1.125rem', pointerEvents: 'none' }}>expand_more</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="label" htmlFor="edit-due">Due Date</label>
+                  <div style={{ position: 'relative' }}>
+                    <input id="edit-due" type="date" className="input" value={form.dueDate} onChange={(e) => setForm((p) => ({ ...p, dueDate: e.target.value }))} />
+                  </div>
+                </div>
+              </div>
             </div>
+
             {isAdmin && (
-              <div>
+              <div className="card">
                 <label className="label" htmlFor="edit-assign">Assign To</label>
-                <select
-                  id="edit-assign"
-                  className="input"
-                  value={form.assignedTo}
-                  onChange={(e) => setForm((p) => ({ ...p, assignedTo: e.target.value }))}
-                >
-                  <option value="">— Unassigned —</option>
-                  {users.map((u) => (
-                    <option key={u._id} value={u._id}>{u.email} ({u.role})</option>
-                  ))}
-                </select>
+                <div style={{ position: 'relative' }}>
+                  <select id="edit-assign" className="input" value={form.assignedTo} onChange={(e) => setForm((p) => ({ ...p, assignedTo: e.target.value }))} style={selectStyle}>
+                    <option value="">— Unassigned —</option>
+                    {users.map((u) => <option key={u._id} value={u._id}>{u.email} ({u.role})</option>)}
+                  </select>
+                  <span className="material-symbols-outlined" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--outline)', fontSize: '1.125rem', pointerEvents: 'none' }}>expand_more</span>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div style={{ background: 'var(--error-container)', borderRadius: '0.75rem', padding: '0.875rem 1rem', color: 'var(--error)', fontSize: '0.875rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>error_outline</span>
+                {error}
               </div>
             )}
           </div>
-
-          {/* Additional documents */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label className="label">Add More Attachments</label>
-            <div style={{ fontSize: '0.8125rem', color: '#64748b', marginBottom: '0.5rem' }}>
-              {existingDocCount} existing / {3 - existingDocCount} slots remaining
-            </div>
-            <DocumentUpload files={files} setFiles={setFiles} existingCount={existingDocCount} />
-          </div>
-
-          {error && (
-            <div style={{
-              background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-              borderRadius: '0.5rem', padding: '0.75rem', color: '#f87171', marginBottom: '1rem',
-            }}>
-              ⚠ {error}
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-            <Button variant="ghost" type="button" onClick={() => navigate(`/tasks/${id}`)}>Cancel</Button>
-            <Button variant="primary" type="submit" loading={loading} id="edit-task-submit">
-              {loading ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };

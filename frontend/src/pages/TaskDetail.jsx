@@ -19,7 +19,7 @@ const formatSize = (bytes) => {
 
 const formatDate = (date) => {
   if (!date) return 'No due date';
-  return new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  return new Date(date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 };
 
 const TaskDetail = () => {
@@ -80,140 +80,228 @@ const TaskDetail = () => {
 
   if (error || !task) {
     return (
-      <div style={{ textAlign: 'center', padding: '4rem' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
-        <h2 style={{ color: '#f1f5f9' }}>Task not found</h2>
-        <Button variant="ghost" onClick={() => navigate('/tasks')} style={{ marginTop: '1rem' }}>
-          ← Back to Tasks
+      <div style={{ textAlign: 'center', padding: '4rem', background: 'var(--surface-container-lowest)', borderRadius: '1rem', border: '1px solid var(--outline-variant)' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--error)', marginBottom: '1rem', display: 'block' }}>error</span>
+        <h2 style={{ fontFamily: 'var(--font-headline)', color: 'var(--on-surface)', margin: '0 0 0.5rem' }}>Task not found</h2>
+        <p style={{ color: 'var(--on-surface-variant)', margin: '0 0 1.5rem' }}>The task may have been deleted or you don't have access.</p>
+        <Button variant="primary" onClick={() => navigate('/tasks')} style={{ gap: '0.5rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_back</span>
+          Back to Tasks
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="page-enter" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      {/* Back + actions */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <button
-          onClick={() => navigate('/tasks')}
-          style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9375rem' }}
-        >
-          ← Back to Tasks
-        </button>
+    <div className="page-enter" style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem' }}>
+
+      {/* ── Header ───────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--on-surface-variant)' }}>
+            <button onClick={() => navigate('/tasks')} style={{ background: 'none', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', padding: 0 }}>Tasks</button>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chevron_right</span>
+            <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Task Details</span>
+          </nav>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <Badge type={task.priority} />
+            <Badge type={task.status} label={task.status === 'IN_PROGRESS' ? 'In Progress' : task.status} />
+          </div>
+
+          <h1 style={{ margin: '0', fontSize: '2rem', fontWeight: 800, fontFamily: 'var(--font-headline)', color: 'var(--on-surface)', lineHeight: 1.2 }}>
+            {task.title}
+          </h1>
+        </div>
+
         {canManage && (
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/tasks/${id}/edit`)} id="task-edit-btn">
-              ✏️ Edit Task
-            </Button>
-            <Button variant="danger" size="sm" onClick={() => setDeleteModal(true)} id="task-delete-btn">
-              🗑️ Delete
-            </Button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              onClick={() => navigate(`/tasks/${id}/edit`)}
+              className="btn btn-ghost"
+              style={{ gap: '0.375rem', padding: '0.5rem 1rem' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>edit_square</span>
+              Edit
+            </button>
+            <button
+              onClick={() => setDeleteModal(true)}
+              className="btn btn-danger"
+              style={{ gap: '0.375rem', padding: '0.5rem 1rem' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>delete</span>
+              Delete
+            </button>
           </div>
         )}
       </div>
 
-      {/* Main card */}
-      <div className="card" style={{ marginBottom: '1.25rem' }}>
-        {/* Badges */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-          <Badge type={task.priority} />
-          <Badge type={task.status} label={task.status === 'IN_PROGRESS' ? 'In Progress' : task.status} />
-        </div>
-
-        <h1 style={{ margin: '0 0 0.75rem', fontSize: '1.625rem', fontWeight: 800, color: '#f1f5f9', lineHeight: 1.3 }}>
-          {task.title}
-        </h1>
-
-        {task.description && (
-          <p style={{ margin: '0 0 1.5rem', color: '#94a3b8', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-            {task.description}
-          </p>
-        )}
-
-        {/* Meta grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', paddingTop: '1rem', borderTop: '1px solid #334155' }}>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.375rem' }}>Due Date</div>
-            <div style={{ color: '#f1f5f9', fontSize: '0.9375rem' }}>📅 {formatDate(task.dueDate)}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr minmax(280px, 340px)', gap: '1.5rem', alignItems: 'start' }}>
+        
+        {/* Main Content Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          <div className="card">
+            <h3 style={{ fontFamily: 'var(--font-headline)', margin: '0 0 1rem', fontSize: '1.125rem', fontWeight: 700, color: 'var(--on-surface)' }}>Description</h3>
+            {task.description ? (
+              <p style={{ margin: 0, color: 'var(--on-surface-variant)', lineHeight: 1.7, whiteSpace: 'pre-wrap', fontSize: '0.9375rem' }}>
+                {task.description}
+              </p>
+            ) : (
+              <p style={{ margin: 0, color: 'var(--outline)', fontStyle: 'italic', fontSize: '0.9375rem' }}>No description provided.</p>
+            )}
           </div>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.375rem' }}>Assigned To</div>
-            <div style={{ color: '#f1f5f9', fontSize: '0.9375rem' }}>
-              {task.assignedTo ? `👤 ${task.assignedTo.email}` : '—'}
+
+          <div className="card">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontFamily: 'var(--font-headline)', margin: 0, fontSize: '1.125rem', fontWeight: 700, color: 'var(--on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: '1.25rem' }}>attach_file</span>
+                Attachments
+              </h3>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, background: 'var(--surface-container-high)', color: 'var(--on-surface-variant)', padding: '0.125rem 0.5rem', borderRadius: '999px' }}>
+                {task.documents?.length || 0} Files
+              </span>
             </div>
-          </div>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.375rem' }}>Created By</div>
-            <div style={{ color: '#f1f5f9', fontSize: '0.9375rem' }}>
-              {task.createdBy?.email || '—'}
-            </div>
-          </div>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.375rem' }}>Created At</div>
-            <div style={{ color: '#f1f5f9', fontSize: '0.9375rem' }}>
-              {new Date(task.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Documents */}
-      <div className="card">
-        <h2 style={{ margin: '0 0 1.25rem', fontSize: '1.0625rem', fontWeight: 700, color: '#f1f5f9' }}>
-          📎 Attachments ({task.documents?.length || 0})
-        </h2>
-
-        {!task.documents?.length ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📄</div>
-            <div>No documents attached to this task.</div>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {task.documents.map((doc) => (
-              <div
-                key={doc._id}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '0.875rem',
-                  padding: '0.875rem 1rem',
-                  background: '#334155', borderRadius: '0.625rem',
-                  border: '1px solid #475569',
-                }}
-              >
-                <span style={{ fontSize: '1.75rem', flexShrink: 0 }}>📄</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, color: '#f1f5f9', fontSize: '0.9375rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {doc.originalName}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.125rem' }}>
-                    {formatSize(doc.size)} · Uploaded {new Date(doc.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDownload(doc._id, doc.originalName)}
-                    id={`download-doc-${doc._id}`}
-                  >
-                    ⬇ Download
-                  </Button>
-                  {canManage && (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      loading={docDeleting === doc._id}
-                      onClick={() => handleDocDelete(doc._id)}
-                      id={`delete-doc-${doc._id}`}
-                    >
-                      🗑
-                    </Button>
-                  )}
-                </div>
+            {!task.documents?.length ? (
+              <div style={{ textAlign: 'center', padding: '2rem', background: 'var(--surface-container)', borderRadius: '0.75rem', border: '1px dashed var(--outline-variant)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--outline-variant)', marginBottom: '0.5rem', display: 'block' }}>file_present</span>
+                <div style={{ color: 'var(--on-surface-variant)', fontSize: '0.875rem' }}>No documents attached.</div>
               </div>
-            ))}
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {task.documents.map((doc) => (
+                  <div
+                    key={doc._id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '1rem',
+                      padding: '1rem',
+                      background: 'var(--surface-container-low)', borderRadius: '0.75rem',
+                      border: '1px solid var(--outline-variant)',
+                      transition: 'border-color 0.15s, background 0.15s',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'var(--surface-container)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--outline-variant)'; e.currentTarget.style.background = 'var(--surface-container-low)'; }}
+                  >
+                    <div style={{
+                      width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem',
+                      background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>picture_as_pdf</span>
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, color: 'var(--on-surface)', fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {doc.originalName}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--outline)', marginTop: '0.125rem' }}>
+                        {formatSize(doc.size)} · Uploaded {new Date(doc.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
+                      <button
+                        title="Download"
+                        onClick={() => handleDownload(doc._id, doc.originalName)}
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          width: '2rem', height: '2rem', borderRadius: '0.375rem',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: 'var(--primary)',
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--primary) 15%, transparent)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>download</span>
+                      </button>
+
+                      {canManage && (
+                        <button
+                          title="Delete"
+                          onClick={() => handleDocDelete(doc._id)}
+                          disabled={docDeleting === doc._id}
+                          style={{
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            width: '2rem', height: '2rem', borderRadius: '0.375rem',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: 'var(--error)',
+                            opacity: docDeleting === doc._id ? 0.5 : 1,
+                          }}
+                          onMouseEnter={(e) => !docDeleting && (e.currentTarget.style.background = 'var(--error-container)')}
+                          onMouseLeave={(e) => !docDeleting && (e.currentTarget.style.background = 'none')}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+                            {docDeleting === doc._id ? 'hourglass_empty' : 'delete'}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Sidebar Metadata Column */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <h3 style={{ fontFamily: 'var(--font-headline)', margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--on-surface)' }}>Properties</h3>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--outline)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>Due Date</div>
+              <div style={{ color: 'var(--on-surface)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--outline)' }}>calendar_today</span>
+                {formatDate(task.dueDate)}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--outline)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>Assigned To</div>
+              <div style={{ color: 'var(--on-surface)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                {task.assignedTo ? (
+                  <>
+                    <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '50%', background: 'var(--primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.625rem', fontWeight: 700 }}>
+                      {task.assignedTo.email?.[0].toUpperCase()}
+                    </div>
+                    {task.assignedTo.email}
+                  </>
+                ) : (
+                  <>
+                    <div style={{ width: '1.5rem', height: '1.5rem', borderRadius: '50%', background: 'var(--surface-container-high)', border: '1px dashed var(--outline)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', color: 'var(--outline)' }}>person_off</span>
+                    </div>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>Unassigned</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--outline)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>Created By</div>
+              <div style={{ color: 'var(--on-surface)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                {task.createdBy ? (
+                  <>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--outline)' }}>account_circle</span>
+                    {task.createdBy.email}
+                  </>
+                ) : (
+                  '—'
+                )}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--outline)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>Created At</div>
+              <div style={{ color: 'var(--on-surface)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--outline)' }}>schedule</span>
+                {new Date(task.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Delete modal */}
@@ -230,10 +318,15 @@ const TaskDetail = () => {
           </>
         }
       >
-        <p style={{ color: '#94a3b8', lineHeight: 1.6 }}>
-          Are you sure you want to delete <strong style={{ color: '#f1f5f9' }}>{task.title}</strong>?
-          This will permanently remove the task and all its attachments. This action cannot be undone.
-        </p>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+          <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', background: 'var(--error-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+             <span className="material-symbols-outlined" style={{ color: 'var(--error)', fontSize: '1.125rem' }}>warning</span>
+          </div>
+          <p style={{ margin: 0, color: 'var(--on-surface-variant)', lineHeight: 1.6 }}>
+            Are you sure you want to delete <strong style={{ color: 'var(--on-surface)' }}>{task.title}</strong>? 
+            This will permanently remove the task and all attached documents.
+          </p>
+        </div>
       </Modal>
     </div>
   );
