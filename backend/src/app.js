@@ -41,8 +41,10 @@ app.use(cookieParser());
 // NoSQL injection prevention
 app.use(mongoSanitize());
 
-// Static uploads
-const uploadDir = path.resolve(process.env.UPLOAD_DIR || 'uploads');
+// On Vercel, /var/task/ is read-only — serve uploads from /tmp instead
+const uploadDir = process.env.VERCEL
+  ? '/tmp/uploads'
+  : path.resolve(process.env.UPLOAD_DIR || 'uploads');
 app.use('/uploads', express.static(uploadDir));
 
 // Swagger docs

@@ -4,11 +4,19 @@ const path = require('path');
 const fs = require('fs');
 const { sendError } = require('../utils/response.utils');
 
-const uploadDir = path.resolve(process.env.UPLOAD_DIR || 'uploads');
+// On Vercel, /var/task/ is read-only. Only /tmp is writable in serverless.
+// Locally and in Docker, use the configured UPLOAD_DIR.
+const uploadDir = process.env.VERCEL
+  ? '/tmp/uploads'
+  : path.resolve(process.env.UPLOAD_DIR || 'uploads');
 
-// Ensure uploads directory exists
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Ensure uploads directory exists (may already exist on warm invocations)
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (e) {
+  console.warn('[upload] Could not create upload dir:', uploadDir, e.message);
 }
 
 const storage = multer.diskStorage({
