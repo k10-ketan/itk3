@@ -171,7 +171,7 @@ const Dashboard = () => {
           </div>
 
           {/* Chart card */}
-          <div className="card">
+          <div className="card" style={{ overflow: 'hidden' }}>
             <h3 style={{ fontFamily: 'var(--font-headline)', margin: '0 0 1.25rem', fontSize: '0.9375rem', fontWeight: 700, color: 'var(--on-surface)' }}>Tasks by Status</h3>
             {loading ? (
               <div className="skeleton" style={{ height: '160px' }} />
