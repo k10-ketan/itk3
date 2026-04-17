@@ -9,11 +9,5 @@
       "entrypoint": "backend",
       "routePrefix": "/_/backend"
     }
-  },
-  "functions": {
-    "backend/api/index.js": {
-      "memory": 512,
-      "maxDuration": 30
-    }
   }
 }
