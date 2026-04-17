@@ -339,6 +339,12 @@ select.input option { background: var(--surface-container-lowest); color: var(--
 }
 .page-enter { animation: fadeInUp 0.3s ease forwards; }
 
+@media (max-width: 680px) {
+  .page-enter {
+    padding: 1rem !important;
+  }
+}
+
 /* ── Avatar ──────────────────────────────────────── */
 .avatar {
   display: inline-flex;
@@ -432,6 +438,35 @@ select.input option { background: var(--surface-container-lowest); color: var(--
 }
 @media (max-width: 1200px) { .task-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 680px)  { .task-grid { grid-template-columns: 1fr; } }
+
+/* ── Responsive grids ────────────────────────────── */
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 900px) { .grid-dashboard { grid-template-columns: 1fr; } }
+
+.grid-task-layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 340px);
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 900px) { .grid-task-layout { grid-template-columns: 1fr; } }
+
+.grid-2-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 680px) { .grid-2-cols { grid-template-columns: 1fr; } }
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
 
 /* ── Sidebar nav link ────────────────────────────── */
 .nav-link {

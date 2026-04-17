@@ -140,7 +140,7 @@ const Dashboard = () => {
       </div>
 
       {/* Content grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="grid-dashboard">
         {/* Filters sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {/* Quick filters card */}
@@ -237,47 +237,49 @@ const Dashboard = () => {
                 </button>
               </div>
             ) : (
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Task Details</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th style={{ textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.map((task) => (
-                    <tr key={task._id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/tasks/${task._id}`)}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <div style={{
-                            width: '2.25rem', height: '2.25rem',
-                            borderRadius: '50%',
-                            background: 'var(--secondary-container)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--primary)' }}>assignment</span>
-                          </div>
-                          <span style={{ fontWeight: 600, color: 'var(--on-surface)', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {task.title}
-                          </span>
-                        </div>
-                      </td>
-                      <td><Badge type={task.priority} /></td>
-                      <td><Badge type={task.status} label={task.status === 'IN_PROGRESS' ? 'In Progress' : task.status} /></td>
-                      <td style={{ textAlign: 'right' }}>
-                        <button
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.375rem', borderRadius: '0.5rem', color: 'var(--outline)' }}
-                          onClick={(e) => { e.stopPropagation(); navigate(`/tasks/${task._id}`); }}
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>more_vert</span>
-                        </button>
-                      </td>
+              <div className="table-responsive">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Task Details</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th style={{ textAlign: 'right' }}>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {recent.map((task) => (
+                      <tr key={task._id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/tasks/${task._id}`)}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{
+                              width: '2.25rem', height: '2.25rem',
+                              borderRadius: '50%',
+                              background: 'var(--secondary-container)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--primary)' }}>assignment</span>
+                            </div>
+                            <span style={{ fontWeight: 600, color: 'var(--on-surface)', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {task.title}
+                            </span>
+                          </div>
+                        </td>
+                        <td><Badge type={task.priority} /></td>
+                        <td><Badge type={task.status} label={task.status === 'IN_PROGRESS' ? 'In Progress' : task.status} /></td>
+                        <td style={{ textAlign: 'right' }}>
+                          <button
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.375rem', borderRadius: '0.5rem', color: 'var(--outline)' }}
+                            onClick={(e) => { e.stopPropagation(); navigate(`/tasks/${task._id}`); }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>more_vert</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
 
             <div style={{ padding: '0.875rem 1.5rem', background: 'color-mix(in srgb, var(--surface-container-low) 50%, transparent)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--surface-container)' }}>

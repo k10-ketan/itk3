@@ -117,7 +117,7 @@ const CreateTask = () => {
 
       {/* ── Bento grid ───────────────────────────── */}
       <form id="create-task-form" onSubmit={handleSubmit} noValidate>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr minmax(260px, 320px)', gap: '1.5rem', alignItems: 'start' }}>
+        <div className="grid-task-layout">
 
           {/* Main column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>

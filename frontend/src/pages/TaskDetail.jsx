@@ -136,7 +136,7 @@ const TaskDetail = () => {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr minmax(280px, 340px)', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="grid-task-layout">
         
         {/* Main Content Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
